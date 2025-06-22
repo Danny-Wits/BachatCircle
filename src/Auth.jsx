@@ -91,7 +91,11 @@ export default function Auth() {
   return (
     <Paper radius="md" p="lg" withBorder>
       <Text size="lg" fw={500}>
-        Welcome to JK Forum, {type} with
+        Welcome to{" "}
+        <span style={{ color: "var(--mantine-primary-color-7)" }}>
+          Bachat Circle
+        </span>
+        , {type} with
       </Text>
 
       <Group grow mb="md" mt="md">
