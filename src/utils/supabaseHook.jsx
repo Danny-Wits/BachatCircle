@@ -33,7 +33,7 @@ export const AuthProvider = ({ children }) => {
   const loginWithGoogle = async () =>
     await supabase.auth.signInWithOAuth({ provider: "google" });
   const login = async (email, password) => {
-    await supabase.auth.signInWithPassword({ email, password });
+    return await supabase.auth.signInWithPassword({ email, password });
   };
 
   const logout = async () => {

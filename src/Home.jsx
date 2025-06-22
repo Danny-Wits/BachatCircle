@@ -5,6 +5,7 @@ import {
   Button,
   Divider,
   Group,
+  Stack,
   Title,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
@@ -49,7 +50,11 @@ export default function Home() {
       </AppShell.Header>
 
       <AppShell.Navbar py="md" px={4}>
-        <div>Mobile Nav</div>
+        <Stack h={"100%"}>
+          <Button onClick={logout} leftSection={<CiLogout />} mt={"auto"}>
+            Log Out
+          </Button>
+        </Stack>
       </AppShell.Navbar>
 
       <AppShell.Main>
