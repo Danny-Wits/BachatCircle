@@ -13,7 +13,7 @@ import { RiMoneyRupeeCircleFill } from "react-icons/ri";
 import Features from "./components/Features";
 import Footer from "./components/Footer";
 import Hero from "./components/Hero";
-import Upgrade from "./components/upgrade";
+import Upgrade from "./components/Upgrade";
 import useSupabase from "./utils/supabaseHook";
 export default function Home() {
   const [opened, { toggle }] = useDisclosure();
