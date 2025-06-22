@@ -1,11 +1,13 @@
 import {
   AppShell,
+  Avatar,
   Box,
   Burger,
   Button,
   Divider,
   Group,
   Stack,
+  Text,
   Title,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
@@ -18,7 +20,7 @@ import Upgrade from "./components/Upgrade";
 import useSupabase from "./utils/supabaseHook";
 export default function Home() {
   const [opened, { toggle }] = useDisclosure();
-  const { logout } = useSupabase();
+  const { logout, user } = useSupabase();
   return (
     <AppShell
       header={{ height: 60 }}
@@ -40,8 +42,14 @@ export default function Home() {
               />
               <Title order={3}>Bachat Cirle</Title>
             </Group>
-            <Group ml="xl" gap={0} visibleFrom="sm">
-              <Button onClick={logout} leftSection={<CiLogout />}>
+            <Group ml="xl" gap={10} visibleFrom="sm">
+              <Avatar
+                src={user?.user_metadata?.avatar_url}
+                radius="xl"
+                name={user?.user_metadata?.name || "Anonymous"}
+                color="initials"
+              ></Avatar>
+              <Button size="sm" onClick={logout} leftSection={<CiLogout />}>
                 Log Out
               </Button>
             </Group>
@@ -51,9 +59,23 @@ export default function Home() {
 
       <AppShell.Navbar py="md" px={4}>
         <Stack h={"100%"}>
-          <Button onClick={logout} leftSection={<CiLogout />} mt={"auto"}>
-            Log Out
-          </Button>
+          <Stack mt={"auto"}>
+            <Group>
+              <Avatar
+                src={user?.user_metadata?.avatar_url}
+                radius="xl"
+                name={user?.user_metadata?.name || "Anonymous"}
+                color="initials"
+              ></Avatar>
+              <Text c={"dimmed"}>
+                {user?.user_metadata?.name || "Anonymous"}
+              </Text>
+            </Group>
+
+            <Button fullWidth onClick={logout} leftSection={<CiLogout />}>
+              Log Out
+            </Button>
+          </Stack>
         </Stack>
       </AppShell.Navbar>
 
