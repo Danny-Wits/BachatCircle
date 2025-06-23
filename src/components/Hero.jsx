@@ -10,10 +10,12 @@ import {
   Title,
 } from "@mantine/core";
 
+import { useNavigate } from "react-router";
 import image from "../assets/hero.svg";
 import classes from "./hero.module.css";
 
 export default function Hero() {
+  const navigate = useNavigate();
   return (
     <Container size="md">
       <div className={classes.inner}>
@@ -53,7 +55,12 @@ export default function Hero() {
           </List>
 
           <Group mt={30}>
-            <Button size="sm" radius="xl" className={classes.control}>
+            <Button
+              onClick={() => navigate("/organizer")}
+              size="sm"
+              radius="xl"
+              className={classes.control}
+            >
               Get Started
             </Button>
             <Button

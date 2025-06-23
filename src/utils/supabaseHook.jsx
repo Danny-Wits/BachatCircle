@@ -1,4 +1,4 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { createContext, useContext, useEffect, useState } from "react";
 import supabase from "./supabase";
 
@@ -6,11 +6,13 @@ const SupabaseContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [session, setSession] = useState(null);
+  const [isLoading, setLoading] = useState(true);
   const queryClient = useQueryClient();
   // Subscribe to auth changes
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
       setSession(data.session);
+      setLoading(false);
     });
 
     const { data: listener } = supabase.auth.onAuthStateChange(
@@ -23,12 +25,6 @@ export const AuthProvider = ({ children }) => {
     return () => listener.subscription.unsubscribe();
   }, []);
 
-  const queryResult = useQuery({
-    queryKey: ["auth"],
-    queryFn: async () => await supabase.auth.getSession(),
-    refetchOnWindowFocus: false,
-    enabled: !session,
-  });
   //Helper functions
   const loginWithGoogle = async () =>
     await supabase.auth.signInWithOAuth({ provider: "google" });
@@ -50,7 +46,7 @@ export const AuthProvider = ({ children }) => {
         loginWithGoogle,
         login,
         logout,
-        isLoading: queryResult.isLoading,
+        isLoading,
       }}
     >
       {children}

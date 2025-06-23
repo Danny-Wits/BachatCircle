@@ -8,12 +8,23 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router";
 import App from "./App";
+import OrganizerDashboard from "./pages/OrganizerDashboard";
+import ProtectedRoute from "./utils/ProtectedRoute";
+import { routes } from "./utils/routes";
 import { AuthProvider } from "./utils/supabaseHook";
 
 const router = createBrowserRouter([
   {
-    path: "/",
+    path: routes.Home,
     element: <App />,
+  },
+  {
+    path: routes.OrganizerDashboard,
+    element: (
+      <ProtectedRoute>
+        <OrganizerDashboard />
+      </ProtectedRoute>
+    ),
   },
 ]);
 const theme = createTheme({
