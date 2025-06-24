@@ -2,8 +2,8 @@ import { Center, Loader } from "@mantine/core";
 import { Navigate } from "react-router";
 import useSupabase from "./supabaseHook";
 
-function ProtectedRoute({ children, orgAuth = false }) {
-  const { isAuthenticated, isOrganizer, isLoading, isAdmin } = useSupabase();
+function ProtectedRoute({ children }) {
+  const { isAuthenticated, isLoading } = useSupabase();
   if (isLoading) {
     return (
       <Center h="100vh">
@@ -12,7 +12,6 @@ function ProtectedRoute({ children, orgAuth = false }) {
     );
   }
   if (!children || !isAuthenticated) return <Navigate to="/" />;
-  if (orgAuth && !isOrganizer) return <Navigate to="/" />;
   return children;
 }
 

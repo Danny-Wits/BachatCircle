@@ -61,15 +61,16 @@ export default function Hero() {
               radius="xl"
               className={classes.control}
             >
-              Get Started
+              <span className={classes.controlText}>Get Started</span>
             </Button>
+
             <Button
               variant="default"
               radius="xl"
               size="sm"
               className={classes.control}
             >
-              Learn More
+              <span className={classes.controlText}>Learn More</span>
             </Button>
           </Group>
         </div>
