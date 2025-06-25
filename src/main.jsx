@@ -13,6 +13,7 @@ import OrganizerDashboard from "./pages/OrganizerDashboard";
 import ProtectedRoute from "./utils/ProtectedRoute";
 import { routes } from "./utils/routes";
 import { AuthProvider } from "./utils/supabaseHook";
+import BecomeOrganizer from "./pages/BecomeOrganizer";
 
 const router = createBrowserRouter([
   {
@@ -32,6 +33,14 @@ const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <AdminDashboard />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: routes.BecomeOrganizer,
+    element: (
+      <ProtectedRoute>
+        <BecomeOrganizer />
       </ProtectedRoute>
     ),
   },

@@ -1,6 +1,6 @@
 import { ActionIcon, Anchor, Avatar, Group, Table, Text } from "@mantine/core";
-import { timeAgo } from "../utils/databaseHelper";
 import { RiVerifiedBadgeFill } from "react-icons/ri";
+import { timeAgo } from "../utils/databaseHelper";
 
 export default function UsersTable({ data, handleVerification }) {
   const rows = data?.map((item) => (
@@ -58,10 +58,10 @@ export default function UsersTable({ data, handleVerification }) {
           <Table.Tr>
             <Table.Th>Employee</Table.Th>
             <Table.Th>Verify</Table.Th>
-            <Table.Th>Email</Table.Th>
-            <Table.Th>Phone</Table.Th>
             <Table.Th>Location</Table.Th>
             <Table.Th>Created</Table.Th>
+            <Table.Th>Email</Table.Th>
+            <Table.Th>Phone</Table.Th>
             <Table.Th />
           </Table.Tr>
         </Table.Thead>

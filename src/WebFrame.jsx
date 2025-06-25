@@ -40,11 +40,18 @@ export default function WebFrame({ children }) {
   );
 }
 export function Header(opened, toggle, user, logout) {
+  const navigate = useNavigate();
   return (
     <Group h="100%" px="md">
       <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
       <Group justify="space-between" style={{ flex: 1 }}>
-        <Group gap={2} justify="center" align="center">
+        <Group
+          gap={2}
+          justify="center"
+          align="center"
+          style={{ cursor: "pointer" }}
+          onClick={() => navigate(routes.Home)}
+        >
           <RiMoneyRupeeCircleFill
             size={32}
             color="var(--mantine-primary-color-7)"

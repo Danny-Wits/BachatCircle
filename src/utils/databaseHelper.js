@@ -9,7 +9,28 @@ export const checkAdmin = async (id) => {
   if (error) console.log(error);
   return Admins.length > 0;
 };
-
+export const checkOrganizer = async (id) => {
+  let { data, error } = await supabase.rpc("checkOrganizer", {
+    org_id: id,
+  });
+  if (error) {
+    notifications.show({
+      title: "Error",
+      message: error.message,
+      color: "red",
+    });
+    return false;
+  }
+  if (!data) {
+    notifications.show({
+      title: "Error",
+      message: "You are not an organizer",
+      color: "red",
+    });
+    return false;
+  }
+  return true;
+};
 export const getOrganizers = async () => {
   let { data: organizers, error } = await supabase
     .from("organizers")
@@ -18,6 +39,25 @@ export const getOrganizers = async () => {
   return organizers;
 };
 
+export const addOrganizer = async ({ id, name, email, phone, location }) => {
+  const { error } = await supabase
+    .from("organizers")
+    .insert([{ id, name, email, phone, location }]);
+  if (error)
+    notifications.show({
+      title: "Error",
+      message:
+        "Request to become an organizer failed or you are already an organizer",
+      color: "red",
+    });
+  else {
+    notifications.show({
+      title: "Success",
+      message: "Request to become an organizer sent successfully",
+      color: "green",
+    });
+  }
+};
 export const verifyOrganizer = async (id) => {
   let { error } = await supabase.rpc("verify_organizer", {
     org_id: id,
