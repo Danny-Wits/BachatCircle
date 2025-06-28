@@ -2,8 +2,10 @@ import { Button, Image, Text, Title } from "@mantine/core";
 import image from "../assets/upgrade.svg";
 import { routes } from "../utils/routes";
 import classes from "./upgrade.module.css";
+import { useNavigate } from "react-router";
 
 export default function Upgrade() {
+  const navigate = useNavigate();
   return (
     <div className={classes.wrapper}>
       <div className={classes.body}>

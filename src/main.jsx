@@ -9,11 +9,11 @@ import { createRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router";
 import App from "./App";
 import AdminDashboard from "./pages/AdminDashboard";
+import BecomeOrganizer from "./pages/BecomeOrganizer";
 import OrganizerDashboard from "./pages/OrganizerDashboard";
 import ProtectedRoute from "./utils/ProtectedRoute";
 import { routes } from "./utils/routes";
 import { AuthProvider } from "./utils/supabaseHook";
-import BecomeOrganizer from "./pages/BecomeOrganizer";
 
 const router = createBrowserRouter([
   {
@@ -49,6 +49,14 @@ const theme = createTheme({
   primaryColor: "orange",
 });
 const queryClient = new QueryClient();
+queryClient.setDefaultOptions({
+  queries: {
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    staleTime: 600,
+  },
+});
+
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <MantineProvider theme={theme}>

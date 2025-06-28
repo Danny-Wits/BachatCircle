@@ -61,7 +61,7 @@ function BecomeOrganizer() {
   });
   return (
     <WebFrame>
-      <Paper radius={"md"} shadow="lg" p={"md"}>
+      <Paper radius={"md"} shadow="lg" p={"md"} withBorder>
         <Title order={2}>Become an Organizer</Title>
         <form
           onSubmit={form.onSubmit((values) =>

@@ -1,4 +1,5 @@
 import {
+  ActionIcon,
   AppShell,
   Avatar,
   Burger,
@@ -7,10 +8,13 @@ import {
   Stack,
   Text,
   Title,
+  useComputedColorScheme,
+  useMantineColorScheme,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { useEffect, useState } from "react";
 import { CiLogout } from "react-icons/ci";
+import { FaMoon, FaSun } from "react-icons/fa";
 import { RiAdminLine, RiMoneyRupeeCircleFill } from "react-icons/ri";
 import { useNavigate } from "react-router";
 import { checkAdmin } from "./utils/databaseHelper";
@@ -58,6 +62,7 @@ export function Header(opened, toggle, user, logout) {
           />
           <Title order={3}>Bachat Cirle</Title>
         </Group>
+        <ThemeChangeButton></ThemeChangeButton>
         <Group ml="xl" gap={10} visibleFrom="sm">
           <Avatar
             src={user?.user_metadata?.avatar_url}
@@ -72,6 +77,21 @@ export function Header(opened, toggle, user, logout) {
         </Group>
       </Group>
     </Group>
+  );
+}
+export function ThemeChangeButton() {
+  const { setColorScheme } = useMantineColorScheme();
+  const computedColorScheme = useComputedColorScheme("light");
+  return (
+    <ActionIcon
+      mr={"auto"}
+      variant="light"
+      onClick={() =>
+        setColorScheme(computedColorScheme === "dark" ? "light" : "dark")
+      }
+    >
+      {computedColorScheme === "dark" ? <FaMoon></FaMoon> : <FaSun></FaSun>}
+    </ActionIcon>
   );
 }
 export function AdminButton({ user }) {
