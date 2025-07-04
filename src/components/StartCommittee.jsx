@@ -16,9 +16,9 @@ function CreateCommittee({ org_id }) {
       name: "",
       description: "",
       org_id,
-      monthly_contribution: 1000,
+      daily_contribution: 50,
       total_months: 12,
-      max_members: 5,
+      total_members: 4,
     },
     validate: {
       name: (value) =>
@@ -33,30 +33,34 @@ function CreateCommittee({ org_id }) {
           : value.length > 100
           ? "Description must be at most 100 characters"
           : null,
-      monthly_contribution: (value) =>
-        value < 100
-          ? "Monthly contribution must be at least 100"
-          : value > 10000
-          ? "Monthly contribution must be at most 10000"
+      daily_contribution: (value) =>
+        value < 50
+          ? "Daily contribution must be at least 50"
+          : value > 500
+          ? "Daily contribution must be at most 500"
           : null,
-      total_months: (value) =>
+      total_months: (value, values) =>
         value < 1
           ? "Total months must be at least 1"
           : value > 24
           ? "Total months must be at most 24"
+          : value % values.total_members !== 0
+          ? "Total months must be divisible by total members, So that each member has same number of withdrawals"
           : null,
-      max_members: (value) =>
+      total_members: (value, values) =>
         value < 2
-          ? "Max members must be at least 2"
+          ? "Total members must be at least 2"
           : value > 12
-          ? "Max members must be at most 12"
+          ? "Total members must be at most 12"
+          : values.total_months % value !== 0
+          ? "Total months must be divisible by total members, So that each member has same number of withdrawals"
           : null,
     },
     validateInputOnChange: [
       "name",
       "description",
-      "max_members",
-      "monthly_contribution",
+      "total_members",
+      "daily_contribution",
       "total_months",
     ],
   });
@@ -89,23 +93,49 @@ function CreateCommittee({ org_id }) {
               {...form.getInputProps("description")}
             />
             <NumberInput
-              label="Monthly Contribution"
-              placeholder="Enter monthly contribution"
+              label="Daily Contribution"
               withAsterisk
-              {...form.getInputProps("monthly_contribution")}
+              {...form.getInputProps("daily_contribution")}
             />
             <NumberInput
               label="Total Months"
-              placeholder="Enter total months"
               withAsterisk
               {...form.getInputProps("total_months")}
             />
             <NumberInput
-              label="Max Members"
-              placeholder="Enter max members"
+              label="Total Members"
+              placeholder="Enter total members"
               withAsterisk
-              {...form.getInputProps("max_members")}
+              {...form.getInputProps("total_members")}
             />
+            <NumberInput
+              label="Total Amount (Auto Calculated)"
+              readOnly
+              styles={{
+                input: {
+                  color: "gray",
+                },
+              }}
+              value={
+                form.values.daily_contribution *
+                form.values.total_months *
+                30 *
+                form.values.total_members
+              }
+            />
+            <NumberInput
+              label="Total Amount per Month (Auto Calculated)"
+              readOnly
+              styles={{
+                input: {
+                  color: "gray",
+                },
+              }}
+              value={
+                form.values.daily_contribution * form.values.total_members * 30
+              }
+            />
+
             <Button type="submit" fullWidth loading={isPending}>
               Submit
             </Button>

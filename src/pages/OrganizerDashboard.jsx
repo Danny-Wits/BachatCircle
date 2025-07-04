@@ -1,9 +1,10 @@
-import { Title } from "@mantine/core";
+import { Group, Text } from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";
 import { Navigate } from "react-router";
 import CommitteeDashboard from "../components/CommitteeDashboard";
 import PageLoader from "../components/PageLoader";
 import CreateCommittee from "../components/StartCommittee";
+import { HomeButton } from "../Home";
 import { checkOrganizer, getCommittee } from "../utils/databaseHelper";
 import { routes } from "../utils/routes";
 import useSupabase from "../utils/supabaseHook";
@@ -30,7 +31,13 @@ function OrganizerDashboard() {
   }
   return (
     <WebFrame>
-      <Title order={2}>Organizer Dashboard</Title>
+      <Group>
+        <HomeButton />
+        <Text order={2} fw={700} c={"orange-7"}>
+          Organizer Dashboard
+        </Text>
+      </Group>
+
       <CommitteeDashboard committee={committee[0]}></CommitteeDashboard>
     </WebFrame>
   );

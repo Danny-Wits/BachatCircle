@@ -39,7 +39,11 @@ export const addOrganizer = async ({ id, name, email, phone, location }) => {
   const { error } = await supabase
     .from("organizers")
     .insert([{ id, name, email, phone, location }]);
-  if (error) showError(error);
+  if (error)
+    showError({
+      message:
+        "Request to become an organizer failed , Common reason is that you are already an organizer",
+    });
   else {
     notifications.show({
       title: "Success",
@@ -82,6 +86,22 @@ export const createCommittee = async (committee) => {
     });
   }
 };
+
+export const createInvite = async (invite) => {
+  const { error } = await supabase.from("invites").insert([invite]);
+  if (error) {
+    showError({ message: "Invite creation failed" });
+    return { token: null };
+  } else {
+    notifications.show({
+      title: "Success",
+      message: "Invite created successfully",
+      color: "green",
+    });
+    return { token: invite.token };
+  }
+};
+
 export function timeAgo(isoTime) {
   const diff = Math.floor((Date.now() - new Date(isoTime)) / 1000);
   const [s, m, h, d] = [60, 3600, 86400, 604800];
@@ -99,3 +119,10 @@ const showError = (error) => {
     color: "red",
   });
 };
+
+export const createToken = async (email) => {
+  const token = Math.random().toString(36).substring(2, 15) + email;
+  return token.toString();
+};
+export const getBaseURL = () =>
+  `${window.location.protocol}//${window.location.host}`;

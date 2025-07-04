@@ -1,11 +1,19 @@
 import { Button, Image, Text, Title } from "@mantine/core";
+import { useQuery } from "@tanstack/react-query";
+import { useNavigate } from "react-router";
 import image from "../assets/upgrade.svg";
 import { routes } from "../utils/routes";
+import useSupabase from "../utils/supabaseHook";
 import classes from "./upgrade.module.css";
-import { useNavigate } from "react-router";
+import { checkOrganizer } from "../utils/databaseHelper";
 
 export default function Upgrade() {
   const navigate = useNavigate();
+  const { user } = useSupabase();
+  const { data: isOrganizer, isLoading } = useQuery({
+    queryKey: ["organizer"],
+    queryFn: () => checkOrganizer(user?.id),
+  });
   return (
     <div className={classes.wrapper}>
       <div className={classes.body}>
@@ -23,7 +31,12 @@ export default function Upgrade() {
           <Button
             radius="md"
             size="md"
-            onClick={() => navigate(routes.BecomeOrganizer)}
+            onClick={() =>
+              navigate(
+                isOrganizer ? routes.OrganizerDashboard : routes.BecomeOrganizer
+              )
+            }
+            loading={isLoading}
           >
             Become an Organizer
           </Button>

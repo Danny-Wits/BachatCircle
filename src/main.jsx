@@ -10,6 +10,7 @@ import { createBrowserRouter, RouterProvider } from "react-router";
 import App from "./App";
 import AdminDashboard from "./pages/AdminDashboard";
 import BecomeOrganizer from "./pages/BecomeOrganizer";
+import Invite from "./pages/Invite";
 import OrganizerDashboard from "./pages/OrganizerDashboard";
 import ProtectedRoute from "./utils/ProtectedRoute";
 import { routes } from "./utils/routes";
@@ -43,6 +44,10 @@ const router = createBrowserRouter([
         <BecomeOrganizer />
       </ProtectedRoute>
     ),
+  },
+  {
+    path: routes.Invite,
+    element: <Invite />,
   },
 ]);
 const theme = createTheme({

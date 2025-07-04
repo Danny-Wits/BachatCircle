@@ -4,15 +4,13 @@ import Home from "./Home";
 import useSupabase from "./utils/supabaseHook";
 function App() {
   const { isAuthenticated } = useSupabase();
-
   if (!isAuthenticated)
     return (
       <Center h="100vh">
         <Auth />
       </Center>
     );
-
-  return <Home></Home>;
+  return <Home />;
 }
 
 export default App;
