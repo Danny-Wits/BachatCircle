@@ -10,12 +10,18 @@ import {
   Title,
 } from "@mantine/core";
 
+import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
 import image from "../assets/hero.svg";
+import { checkOrganizer } from "../utils/databaseHelper";
 import classes from "./hero.module.css";
 
-export default function Hero() {
+export default function Hero({ user }) {
   const navigate = useNavigate();
+  const { data: isOrganizer, isLoading } = useQuery({
+    queryKey: ["organizer"],
+    queryFn: () => checkOrganizer(user?.id),
+  });
   return (
     <Container size="md">
       <div className={classes.inner}>
@@ -53,26 +59,38 @@ export default function Hero() {
               monthly disbursal
             </List.Item>
           </List>
+          {isOrganizer || !isLoading ? (
+            <Group mt={30}>
+              <Button
+                onClick={() => navigate("/organizer")}
+                size="sm"
+                radius="xl"
+                className={classes.control}
+              >
+                <span className={classes.controlText}>Go to Dashboard</span>
+              </Button>
+            </Group>
+          ) : (
+            <Group mt={30}>
+              <Button
+                onClick={() => navigate("/organizer")}
+                size="sm"
+                radius="xl"
+                className={classes.control}
+              >
+                <span className={classes.controlText}>Get Started</span>
+              </Button>
 
-          <Group mt={30}>
-            <Button
-              onClick={() => navigate("/organizer")}
-              size="sm"
-              radius="xl"
-              className={classes.control}
-            >
-              <span className={classes.controlText}>Get Started</span>
-            </Button>
-
-            <Button
-              variant="default"
-              radius="xl"
-              size="sm"
-              className={classes.control}
-            >
-              <span className={classes.controlText}>Learn More</span>
-            </Button>
-          </Group>
+              <Button
+                variant="default"
+                radius="xl"
+                size="sm"
+                className={classes.control}
+              >
+                <span className={classes.controlText}>Learn More</span>
+              </Button>
+            </Group>
+          )}
         </div>
         <Image src={image} className={classes.image} />
       </div>

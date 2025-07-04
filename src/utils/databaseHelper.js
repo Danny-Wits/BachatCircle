@@ -121,7 +121,7 @@ const showError = (error) => {
 };
 
 export const createToken = async (email) => {
-  const token = Math.random().toString(36).substring(2, 15) + email;
+  const token = Math.random().toString(36).substring(0, 10) + email;
   return token.toString();
 };
 export const getBaseURL = () =>
