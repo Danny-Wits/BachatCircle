@@ -1,43 +1,43 @@
-import { Center, Stack, Text } from "@mantine/core";
-import { useParams } from "react-router";
+import { Center, Text } from "@mantine/core";
+import { useQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
+import { Navigate, useParams } from "react-router";
+import PageLoader from "../components/PageLoader";
+import { validateInvite } from "../utils/databaseHelper";
+import { routes } from "../utils/routes";
+import useSupabase from "../utils/supabaseHook";
 
 function Invite() {
   const params = useParams();
   const token = params?.token;
+  const { setInvite } = useSupabase();
+
+  const { data, isLoading } = useQuery({
+    queryKey: ["invite"],
+    queryFn: () => validateInvite(token, breakToken(token)[1]),
+    staleTime: Infinity,
+    gcTime: 0,
+  });
   if (!token) {
     return (
       <Center h="100vh">
-        <Text>Invalid Token</Text>
+        <Text>Invalid Token or Token has expired</Text>
       </Center>
     );
   }
-  const email = mailFromToken(token);
-  return (
-    <Center h="100vh" bd={"10px solid var(--mantine-color-orange-3)"}>
-      <Stack align="center" spacing="xl" p={"xl"}>
-        <Text align="center">
-          Hey there{" "}
-          <span
-            style={{
-              fontWeight: "bold",
-              color: "var(--mantine-primary-color-7)",
-            }}
-          >
-            {email}
-          </span>{" "}
-          ! We have received your request to join a Bachat Circle.
-        </Text>
-        <Text align="center">
-          We are currently working on this feature. We will reach out to you at
-          once it is ready.
-        </Text>
-      </Stack>
-    </Center>
-  );
+  const [_, email, inviter, committee] = breakToken(token);
+  useEffect(() => {
+    if (data) {
+      setInvite({ id: data, token, email, inviter, committee });
+    }
+  }, [data]);
+  if (isLoading) return <PageLoader></PageLoader>;
+
+  return <Navigate to={routes.Home}></Navigate>;
 }
 
 export default Invite;
 
-function mailFromToken(token) {
-  return token.substring(10, token.length);
+function breakToken(token) {
+  return token.split("|");
 }

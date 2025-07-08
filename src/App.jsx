@@ -3,13 +3,14 @@ import Auth from "./Auth";
 import Home from "./Home";
 import useSupabase from "./utils/supabaseHook";
 function App() {
-  const { isAuthenticated } = useSupabase();
+  const { isAuthenticated, invite } = useSupabase();
   if (!isAuthenticated)
     return (
       <Center h="100vh">
-        <Auth />
+        <Auth email={invite?.email || ""} isInvite={invite !== null} />
       </Center>
     );
+
   return <Home />;
 }
 

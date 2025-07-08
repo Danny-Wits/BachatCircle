@@ -6,8 +6,10 @@ const SupabaseContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [session, setSession] = useState(null);
+  const [invite, setInvite] = useState(null);
   const [isLoading, setLoading] = useState(true);
   const queryClient = useQueryClient();
+
   // Subscribe to auth changes
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -32,8 +34,10 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = async () => {
+    setLoading(true);
     await supabase.auth.signOut();
     setSession(null);
+    setLoading(false);
   };
 
   return (
@@ -45,6 +49,8 @@ export const AuthProvider = ({ children }) => {
         loginWithGoogle,
         login,
         logout,
+        setInvite,
+        invite,
         isLoading,
       }}
     >

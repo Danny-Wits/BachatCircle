@@ -4,4 +4,5 @@ export const routes = {
   BecomeOrganizer: "/organizer/become-organizer",
   AdminDashboard: "/admin",
   Invite: "/invite/:token",
+  InviteAccept: "/invite/accept/",
 };

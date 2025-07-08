@@ -19,10 +19,12 @@ import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import { FaCopy } from "react-icons/fa";
 import { createInvite, createToken, getBaseURL } from "../utils/databaseHelper";
+import useSupabase from "../utils/supabaseHook";
 import StatsProgress from "./ProgressSection";
 
 function CommitteeDashboard({ committee, members }) {
   const [opened, { open, close }] = useDisclosure(false);
+  const { user } = useSupabase();
   const form = useForm({
     initialValues: {
       email: "",
@@ -43,7 +45,11 @@ function CommitteeDashboard({ committee, members }) {
   });
 
   const handleGenerateInvite = async (values) => {
-    const token = await createToken(form?.values?.email);
+    const token = await createToken(
+      form?.values?.email,
+      user?.user_metadata?.name,
+      committee?.name
+    );
     mutate({ token: token, committee_id: committee.id, ...values });
   };
   const inviteLink = `${getBaseURL()}/invite/${inviteToken}`;
@@ -66,7 +72,6 @@ function CommitteeDashboard({ committee, members }) {
                   {({ copied, copy }) => (
                     <TooltipFloating
                       label={copied ? "Copied" : "Copy"}
-                      withArrow
                       position="right"
                     >
                       <ActionIcon

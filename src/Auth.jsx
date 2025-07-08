@@ -14,14 +14,20 @@ import {
 import { useForm } from "@mantine/form";
 import { upperFirst, useToggle } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
+import { useEffect } from "react";
+import { FaStarOfLife } from "react-icons/fa";
 import supabase from "./utils/supabase";
 import useSupabase from "./utils/supabaseHook";
 
-export default function Auth() {
+export default function Auth({ email = "", isInvite = false }) {
   const [type, toggle] = useToggle(["login", "register"]);
+  useEffect(() => {
+    if (isInvite) toggle("register");
+  }, [isInvite]);
+
   const form = useForm({
     initialValues: {
-      email: "",
+      email: email || "",
       name: "",
       password: "",
       terms: true,
@@ -35,9 +41,19 @@ export default function Auth() {
           : null,
     },
   });
-  const { login, loginWithGoogle } = useSupabase();
+  const { login, loginWithGoogle, invite } = useSupabase();
   const handleSubmit = (values) => {
+    if (isInvite) handleInvite();
+
     if (type === "register") {
+      if (!values.terms) {
+        notifications.show({
+          title: "Error",
+          message: "Please accept terms and conditions",
+          color: "red",
+        });
+        return;
+      }
       handleRegister(values);
     } else {
       handleLogin(values);
@@ -88,6 +104,8 @@ export default function Auth() {
       });
     }
   };
+
+  const handleInvite = async () => {};
   return (
     <Paper radius="md" p="lg" withBorder>
       <Text size="lg" fw={500}>
@@ -173,6 +191,12 @@ export default function Auth() {
           </Button>
         </Group>
       </form>
+      {isInvite && (
+        <Text c="dimmed" size="xs" p={"md"}>
+          <FaStarOfLife color="orange" /> You are invited by{" "}
+          <b>{invite?.inviter}</b> to join <b>{invite?.committee}</b> committee
+        </Text>
+      )}
     </Paper>
   );
 }
