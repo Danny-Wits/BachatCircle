@@ -5,7 +5,7 @@ import CommitteeDashboard from "../components/CommitteeDashboard";
 import PageLoader from "../components/PageLoader";
 import CreateCommittee from "../components/StartCommittee";
 import { HomeButton } from "../Home";
-import { checkOrganizer, getCommittee } from "../utils/databaseHelper";
+import { checkOrganizer, getCommittee, getCommitteeMembers } from "../utils/databaseHelper";
 import { routes } from "../utils/routes";
 import useSupabase from "../utils/supabaseHook";
 import WebFrame from "../WebFrame";
@@ -19,6 +19,11 @@ function OrganizerDashboard() {
   const { data: committee, isLoading: isLoadingCommittee } = useQuery({
     queryKey: ["committee"],
     queryFn: () => getCommittee(user?.id),
+  });
+  const { data: members } = useQuery({
+    queryKey: ["members"],
+    queryFn: () => getCommitteeMembers(committee?.[0]?.id),
+    enabled: !!committee?.[0]?.id,
   });
   if (isLoading || isLoadingCommittee) return <PageLoader></PageLoader>;
   if (!isOrganizer) return <Navigate to={routes.BecomeOrganizer}></Navigate>;
@@ -38,7 +43,10 @@ function OrganizerDashboard() {
         </Text>
       </Group>
 
-      <CommitteeDashboard committee={committee[0]}></CommitteeDashboard>
+      <CommitteeDashboard
+        committee={committee[0]}
+        members={members}
+      ></CommitteeDashboard>
     </WebFrame>
   );
 }

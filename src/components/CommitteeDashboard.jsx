@@ -112,7 +112,7 @@ function CommitteeDashboard({ committee, members }) {
         </Stack>
       </Paper>
 
-      <StatsProgress data={fillData(committee)}></StatsProgress>
+      <StatsProgress data={fillData(committee, members)}></StatsProgress>
       <Button variant="light" onClick={open}>
         Generate User Invite URL
       </Button>
@@ -123,16 +123,16 @@ function CommitteeDashboard({ committee, members }) {
 
 export default CommitteeDashboard;
 
-function fillData(committee) {
+function fillData(committee, members) {
+  const currentMembers = members?.length || 0;
   return [
     {
       label: "Total Members Joined",
-      stats: 0 + "/" + committee.total_members + " members",
-      progress: (100 * 0) / committee.total_members,
+      stats: currentMembers + "/" + committee.total_members + " members",
+      progress: (currentMembers * 100) / committee.total_members,
       color: "teal",
       icon: "members",
     },
-    //TODO: Add a progress bar
     {
       label: "Total Months",
       stats: committee.current_round + "/" + committee.total_months + " months",

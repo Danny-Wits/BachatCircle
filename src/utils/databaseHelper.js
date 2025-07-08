@@ -141,6 +141,15 @@ export const createCommittee = async (committee) => {
   }
 };
 
+export const getCommitteeMembers = async (id) => {
+  let { data: members, error } = await supabase
+    .from("committee_members")
+    .select("*")
+    .eq("committee_id", id);
+  if (error) showError(error);
+  return members;
+};
+
 //!Extras
 export function timeAgo(isoTime) {
   const diff = Math.floor((Date.now() - new Date(isoTime)) / 1000);
