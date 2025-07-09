@@ -34,10 +34,9 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = async () => {
-    setLoading(true);
     await supabase.auth.signOut();
     setSession(null);
-    setLoading(false);
+    queryClient.removeQueries([]);
   };
 
   return (
