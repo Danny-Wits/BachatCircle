@@ -1,7 +1,8 @@
-import { Center, Loader, Stack, Text, Title } from "@mantine/core";
+import { Center, Loader, Stack, Text } from "@mantine/core";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Navigate } from "react-router";
 import WebFrame from "../WebFrame";
+import PageTitle from "../components/PageTitle";
 import UsersTable from "../components/UserTable";
 import {
   checkAdmin,
@@ -35,7 +36,7 @@ function AdminDashboard() {
   return (
     <WebFrame>
       <Stack>
-        <Title order={2}>Admin Dashboard</Title>
+        <PageTitle title="Admin Dashboard" />
         <Stack p="lg">
           <Text>Verify Organizers </Text>
           <UsersTable

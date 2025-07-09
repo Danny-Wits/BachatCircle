@@ -80,7 +80,6 @@ export const getInvites = async (
 
   return invites;
 };
-
 export const validateInvite = async (token, email) => {
   let { data, error } = await supabase.rpc("verify_invite", {
     p_token: token,
@@ -95,7 +94,7 @@ export const validateInvite = async (token, email) => {
   return data;
 };
 export const createInvite = async (invite) => {
-  const invites = await getInvites(invite?.email, invite?.committee_id);
+  const invites = await getInvites(invite?.email, invite?.committee_id, true);
 
   if (invites?.length > 0) return { token: invites[0].token };
   const { error } = await supabase.from("invites").insert([invite]);
@@ -111,7 +110,6 @@ export const createInvite = async (invite) => {
     return { token: invite.token };
   }
 };
-
 export const acceptInvite = async (id) => {
   let { data, error } = await supabase.rpc("accept_invite", {
     invite_id: id,
@@ -144,8 +142,9 @@ export const createCommittee = async (committee) => {
 export const getCommitteeMembers = async (id) => {
   let { data: members, error } = await supabase
     .from("committee_members")
-    .select("*")
-    .eq("committee_id", id);
+    .select("* , user_profiles(*)")
+    .eq("committee_id", id)
+    .order("id", { ascending: false });
   if (error) showError(error);
   return members;
 };

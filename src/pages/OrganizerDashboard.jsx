@@ -1,14 +1,17 @@
-import { Group, Text } from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";
 import { Navigate } from "react-router";
 import CommitteeDashboard from "../components/CommitteeDashboard";
 import PageLoader from "../components/PageLoader";
 import CreateCommittee from "../components/StartCommittee";
-import { HomeButton } from "../Home";
-import { checkOrganizer, getCommittee, getCommitteeMembers } from "../utils/databaseHelper";
+import {
+  checkOrganizer,
+  getCommittee,
+  getCommitteeMembers,
+} from "../utils/databaseHelper";
 import { routes } from "../utils/routes";
 import useSupabase from "../utils/supabaseHook";
 import WebFrame from "../WebFrame";
+import PageTitle from "../components/PageTitle";
 
 function OrganizerDashboard() {
   const { user } = useSupabase();
@@ -36,12 +39,7 @@ function OrganizerDashboard() {
   }
   return (
     <WebFrame>
-      <Group>
-        <HomeButton />
-        <Text order={2} fw={700} c={"orange-7"}>
-          Organizer Dashboard
-        </Text>
-      </Group>
+      <PageTitle title="Organizer Dashboard" />
 
       <CommitteeDashboard
         committee={committee[0]}

@@ -13,6 +13,7 @@ import WebFrame from "../WebFrame";
 import PageLoader from "../components/PageLoader";
 import { acceptInvite, getInvites, timeAgo } from "../utils/databaseHelper";
 import useSupabase from "../utils/supabaseHook";
+import PageTitle from "../components/PageTitle";
 
 function InviteAccept() {
   const { user } = useSupabase();
@@ -31,7 +32,7 @@ function InviteAccept() {
   if (isLoading) return <PageLoader></PageLoader>;
   return (
     <WebFrame>
-      <h1>Invites</h1>
+      <PageTitle title="Invites"></PageTitle>
       <Stack>
         {data?.map((invite) => (
           <Paper key={invite.id} withBorder radius="md" p="xs">

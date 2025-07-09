@@ -10,7 +10,7 @@ import {
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { IoIosArrowBack } from "react-icons/io";
 import { useNavigate } from "react-router";
 import Features from "./components/Features";
@@ -31,7 +31,6 @@ export default function Home() {
     enabled: !!user?.email,
   });
   const showInvite = (invite || invites?.length > 0) && !isLoading && opened;
-  const queryClient = useQueryClient();
   const handleAcceptInvite = async () => {
     let data;
     if (invite) data = await acceptInvite(invite.id);

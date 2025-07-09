@@ -1,10 +1,11 @@
-import { Button, Paper, Stack, TextInput, Title } from "@mantine/core";
+import { Button, Paper, Stack, TextInput } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useMutation } from "@tanstack/react-query";
 import { useEffect } from "react";
 import WebFrame from "../WebFrame";
 import { addOrganizer } from "../utils/databaseHelper";
 import useSupabase from "../utils/supabaseHook";
+import PageTitle from "../components/PageTitle";
 
 // id
 // uuid	uuid
@@ -62,7 +63,7 @@ function BecomeOrganizer() {
   return (
     <WebFrame>
       <Paper radius={"md"} shadow="lg" p={"md"} withBorder>
-        <Title order={2}>Become an Organizer</Title>
+        <PageTitle title="Become an Organizer"></PageTitle>
         <form
           onSubmit={form.onSubmit((values) =>
             mutate({ id: user?.id, ...values })

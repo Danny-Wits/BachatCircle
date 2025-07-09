@@ -1,9 +1,11 @@
 import {
   ActionIcon,
+  Badge,
   Button,
   CheckIcon,
   Code,
   CopyButton,
+  Divider,
   Group,
   Modal,
   Paper,
@@ -18,8 +20,14 @@ import { useDisclosure } from "@mantine/hooks";
 import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import { FaCopy } from "react-icons/fa";
-import { createInvite, createToken, getBaseURL } from "../utils/databaseHelper";
+import {
+  createInvite,
+  createToken,
+  getBaseURL,
+  timeAgo,
+} from "../utils/databaseHelper";
 import useSupabase from "../utils/supabaseHook";
+import Members from "./Members";
 import StatsProgress from "./ProgressSection";
 
 function CommitteeDashboard({ committee, members }) {
@@ -53,6 +61,7 @@ function CommitteeDashboard({ committee, members }) {
     mutate({ token: token, committee_id: committee.id, ...values });
   };
   const inviteLink = `${getBaseURL()}/invite/${inviteToken}`;
+  const isFull = members?.length == committee?.total_members;
   return (
     <Stack p={"md"}>
       <Modal opened={opened} onClose={close} title="Committee Invite Link">
@@ -105,17 +114,45 @@ function CommitteeDashboard({ committee, members }) {
       </Modal>
       <Paper withBorder radius="md" p="xs">
         <Stack>
-          <Title order={2}>{committee?.name}</Title>
+          <Group>
+            <Title order={2}>{committee?.name}</Title>
+            <Badge color="green">{committee?.status}</Badge>
+          </Group>
           <Text c="dimmed" size="xs">
             {committee?.description}
           </Text>
+          <Text c="dimmed" size="xs">
+            Created {timeAgo(committee?.created_at)}
+          </Text>
         </Stack>
       </Paper>
+      <TitleCard title="Actions">
+        <Group>
+          <Button disabled={!isFull} fullWidth>
+            {!isFull ? (
+              <Badge color="red" variant="dot">
+                {" "}
+                Committee is Not Full
+              </Badge>
+            ) : (
+              <Text> Start Committee </Text>
+            )}
+          </Button>
 
-      <StatsProgress data={fillData(committee, members)}></StatsProgress>
-      <Button variant="light" onClick={open}>
-        Generate User Invite URL
-      </Button>
+          <Button variant="light" onClick={open} fullWidth>
+            Generate Invite Link
+          </Button>
+        </Group>
+      </TitleCard>
+      
+      <TitleCard title="Stats">
+        <StatsProgress data={fillData(committee, members)}></StatsProgress>
+      </TitleCard>
+
+      <TitleCard title="Members">
+        <Members members={members}></Members>
+      </TitleCard>
+
       {/* <Code w={300}>{JSON.stringify(committee, null, 2)}</Code> */}
     </Stack>
   );
@@ -148,4 +185,16 @@ function fillData(committee, members) {
       icon: "money",
     },
   ];
+}
+
+function TitleCard({ title, children }) {
+  return (
+    <Paper withBorder radius="md" p="xs">
+      <Text fw={600} size="sm">
+        {title}
+      </Text>
+      <Divider mb="md" mt="xs"></Divider>
+      {children}
+    </Paper>
+  );
 }
