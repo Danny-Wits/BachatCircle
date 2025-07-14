@@ -1,7 +1,10 @@
+import { Button, Stack } from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";
-import { Navigate } from "react-router";
+import { CiUser } from "react-icons/ci";
+import { Navigate, useNavigate } from "react-router";
 import CommitteeDashboard from "../components/CommitteeDashboard";
 import PageLoader from "../components/PageLoader";
+import PageTitle from "../components/PageTitle";
 import CreateCommittee from "../components/StartCommittee";
 import {
   checkOrganizer,
@@ -11,10 +14,10 @@ import {
 import { routes } from "../utils/routes";
 import useSupabase from "../utils/supabaseHook";
 import WebFrame from "../WebFrame";
-import PageTitle from "../components/PageTitle";
 
 function OrganizerDashboard() {
   const { user } = useSupabase();
+  const navigate = useNavigate();
   const { data: isOrganizer, isLoading } = useQuery({
     queryKey: ["organizer"],
     queryFn: () => checkOrganizer(user?.id),
@@ -40,6 +43,19 @@ function OrganizerDashboard() {
   return (
     <WebFrame>
       <PageTitle title="Organizer Dashboard" />
+      <Stack p="lg">
+        <Button
+          fullWidth
+          variant="outline"
+          leftSection={<CiUser />}
+          onClick={() => {
+            navigate(routes.Members);
+          }}
+        >
+          {" "}
+          Go to Members Dashboard
+        </Button>
+      </Stack>
 
       <CommitteeDashboard
         committee={committee[0]}

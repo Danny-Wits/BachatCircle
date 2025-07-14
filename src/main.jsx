@@ -12,6 +12,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import BecomeOrganizer from "./pages/BecomeOrganizer";
 import Invite from "./pages/Invite";
 import InviteAccept from "./pages/InviteAccept";
+import MembersDashboard from "./pages/MembersDashboard";
 import OrganizerDashboard from "./pages/OrganizerDashboard";
 import ProtectedRoute from "./utils/ProtectedRoute";
 import { routes } from "./utils/routes";
@@ -55,6 +56,14 @@ const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <InviteAccept />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: routes.MembersDashboard,
+    element: (
+      <ProtectedRoute>
+        <MembersDashboard />
       </ProtectedRoute>
     ),
   },

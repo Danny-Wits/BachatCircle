@@ -17,13 +17,15 @@ import {
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
-import { useMutation } from "@tanstack/react-query";
+import { notifications } from "@mantine/notifications";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { FaCopy } from "react-icons/fa";
 import {
   createInvite,
   createToken,
   getBaseURL,
+  startCommittee,
   timeAgo,
 } from "../utils/databaseHelper";
 import useSupabase from "../utils/supabaseHook";
@@ -42,6 +44,7 @@ function CommitteeDashboard({ committee, members }) {
     },
     validateInputOnChange: ["email"],
   });
+  const queryClient = useQueryClient();
   const [inviteToken, setInviteToken] = useState("");
   const { mutate, isPending } = useMutation({
     mutationKey: ["createInvite"],
@@ -62,6 +65,18 @@ function CommitteeDashboard({ committee, members }) {
   };
   const inviteLink = `${getBaseURL()}/invite/${inviteToken}`;
   const isFull = members?.length == committee?.total_members;
+  const { mutate: start, isPending: isPendingStart } = useMutation({
+    mutationKey: ["startCommittee"],
+    mutationFn: async () => await startCommittee(committee.id),
+    onSuccess: () => {
+      notifications.show({
+        title: "Success",
+        message: "Committee started successfully",
+        color: "green",
+      });
+      queryClient.refetchQueries(["committee"]);
+    },
+  });
   return (
     <Stack p={"md"}>
       <Modal opened={opened} onClose={close} title="Committee Invite Link">
@@ -128,23 +143,38 @@ function CommitteeDashboard({ committee, members }) {
       </Paper>
       <TitleCard title="Actions">
         <Group>
-          <Button disabled={!isFull} fullWidth>
-            {!isFull ? (
-              <Badge color="red" variant="dot">
-                {" "}
-                Committee is Not Full
-              </Badge>
-            ) : (
-              <Text> Start Committee </Text>
-            )}
-          </Button>
-
-          <Button variant="light" onClick={open} fullWidth>
-            Generate Invite Link
-          </Button>
+          {committee?.status === "active" ? (
+            <Badge color="green"> Committee has Started</Badge>
+          ) : (
+            <>
+              <Button
+                loading={isPendingStart}
+                disabled={!isFull}
+                fullWidth
+                onClick={() => {
+                  start();
+                }}
+              >
+                {!isFull ? (
+                  <Badge color="red" variant="dot">
+                    {" "}
+                    Committee is Not Full
+                  </Badge>
+                ) : (
+                  <Text>
+                    {" "}
+                    {isPendingStart ? "Starting..." : "Start Committee"}{" "}
+                  </Text>
+                )}
+              </Button>
+              <Button variant="light" onClick={open} fullWidth>
+                Generate Invite Link
+              </Button>
+            </>
+          )}
         </Group>
       </TitleCard>
-      
+
       <TitleCard title="Stats">
         <StatsProgress data={fillData(committee, members)}></StatsProgress>
       </TitleCard>

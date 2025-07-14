@@ -5,4 +5,5 @@ export const routes = {
   AdminDashboard: "/admin",
   Invite: "/invite/:token",
   InviteAccept: "/invite/accept/",
+  MembersDashboard: "/members",
 };

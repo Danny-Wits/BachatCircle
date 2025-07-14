@@ -127,6 +127,23 @@ export const getCommittee = async (id) => {
   if (error) showError(error);
   return committee;
 };
+
+export const getCommitteesForMember = async (id) => {
+  let { data: committee, error } = await supabase
+    .from("committee_members")
+    .select("* , committee(name)")
+    .eq("user_id", id);
+  if (error) showError(error);
+  return committee;
+};
+export const getCommitteeForUser = async (id) => {
+  let { data: committee, error } = await supabase
+    .from("committee")
+    .select("*")
+    .eq("id", id);
+  if (error) showError(error);
+  return committee;
+};
 export const createCommittee = async (committee) => {
   const { error } = await supabase.from("committee").insert([committee]);
   if (error) showError({ message: "Committee creation failed" });
@@ -149,6 +166,12 @@ export const getCommitteeMembers = async (id) => {
   return members;
 };
 
+export const startCommittee = async (id) => {
+  const { error } = await supabase.rpc("try_start_committee", {
+    comm_id: id,
+  });
+  if (error) showError(error);
+};
 //!Extras
 export function timeAgo(isoTime) {
   const diff = Math.floor((Date.now() - new Date(isoTime)) / 1000);

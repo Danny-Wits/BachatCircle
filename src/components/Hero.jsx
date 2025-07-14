@@ -14,6 +14,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
 import image from "../assets/hero.svg";
 import { checkOrganizer } from "../utils/databaseHelper";
+import { routes } from "../utils/routes";
 import classes from "./hero.module.css";
 
 export default function Hero({ user }) {
@@ -59,7 +60,7 @@ export default function Hero({ user }) {
               monthly disbursal
             </List.Item>
           </List>
-          {isOrganizer || !isLoading ? (
+          {isOrganizer ? (
             <Group mt={30}>
               <Button
                 onClick={() => navigate("/organizer")}
@@ -73,7 +74,7 @@ export default function Hero({ user }) {
           ) : (
             <Group mt={30}>
               <Button
-                onClick={() => navigate("/organizer")}
+                onClick={() => navigate(routes.BecomeOrganizer)}
                 size="sm"
                 radius="xl"
                 className={classes.control}
@@ -86,8 +87,9 @@ export default function Hero({ user }) {
                 radius="xl"
                 size="sm"
                 className={classes.control}
+                onClick={() => navigate(routes.MembersDashboard)}
               >
-                <span className={classes.controlText}>Learn More</span>
+                <span className={classes.controlText}>Committees</span>
               </Button>
             </Group>
           )}
