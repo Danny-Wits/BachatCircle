@@ -1,4 +1,4 @@
-import { Button, Stack } from "@mantine/core";
+import { Button, Paper, Stack, Text } from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";
 import { CiUser } from "react-icons/ci";
 import { Navigate, useNavigate } from "react-router";
@@ -43,19 +43,29 @@ function OrganizerDashboard() {
   return (
     <WebFrame>
       <PageTitle title="Organizer Dashboard" />
-      <Stack p="lg">
-        <Button
-          fullWidth
-          variant="outline"
-          leftSection={<CiUser />}
-          onClick={() => {
-            navigate(routes.Members);
-          }}
-        >
-          {" "}
-          Go to Members Dashboard
-        </Button>
-      </Stack>
+      <Paper withBorder radius="md">
+        {committee[0]?.started_on && (
+          <Stack p="lg">
+            <Text size="xs" c="dimmed">
+              {" "}
+              Go to payment page to check payments
+            </Text>
+            <Button
+              fullWidth
+              variant="outline"
+              leftSection={<CiUser />}
+              onClick={() => {
+                navigate(
+                  routes.CommitteePayments.replace(":id", committee[0]?.id)
+                );
+              }}
+            >
+              {" "}
+              Payment Page
+            </Button>
+          </Stack>
+        )}
+      </Paper>
 
       <CommitteeDashboard
         committee={committee[0]}

@@ -172,6 +172,17 @@ export const startCommittee = async (id) => {
   });
   if (error) showError(error);
 };
+//!Payments
+export const getCommitteePaymentsOnDate = async (id, payment_data) => {
+  let { data: payments, error } = await supabase
+    .from("expected_payments")
+    .select("*, user_profiles(*)")
+    .eq("committee_id", id)
+    .eq("payment_date", payment_data);
+  if (error) showError(error);
+  return payments;
+};
+
 //!Extras
 export function timeAgo(isoTime) {
   const diff = Math.floor((Date.now() - new Date(isoTime)) / 1000);
@@ -189,6 +200,7 @@ const showError = (error) => {
     message: error.message,
     color: "red",
   });
+  throw new Error(error.message);
 };
 export const createToken = async (email, invitedBy, committee) => {
   const token =

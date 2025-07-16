@@ -139,6 +139,10 @@ function CommitteeDashboard({ committee, members }) {
           <Text c="dimmed" size="xs">
             Created {timeAgo(committee?.created_at)}
           </Text>
+          <Text c="dimmed" size="xs">
+            {committee?.started_on &&
+              `Started on ${new Date(committee?.started_on).toDateString()}`}
+          </Text>
         </Stack>
       </Paper>
       <TitleCard title="Actions">

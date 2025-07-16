@@ -1,7 +1,7 @@
 import { Button, Divider, Paper, Select, Text } from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import CommitteePayments from "../components/CommitteePayments";
+import { Navigate } from "react-router";
 import Members from "../components/Members";
 import PageLoader from "../components/PageLoader";
 import PageTitle from "../components/PageTitle";
@@ -9,6 +9,7 @@ import {
   getCommitteeMembers,
   getCommitteesForMember,
 } from "../utils/databaseHelper";
+import { routes } from "../utils/routes";
 import useSupabase from "../utils/supabaseHook";
 import WebFrame from "../WebFrame";
 
@@ -60,17 +61,16 @@ function MembersDashboard() {
       )}
     </>
   );
+  if (finalCommittee)
+    return (
+      <Navigate
+        to={routes.CommitteePayments.replace(":id", finalCommittee?.value)}
+      ></Navigate>
+    );
   return (
     <WebFrame>
       <PageTitle title="Members Dashboard" />
-      {finalCommittee ? (
-        <CommitteePayments
-          id={finalCommittee?.value}
-          back={() => setFinalCommittee(null)}
-        />
-      ) : (
-        committeeSelection
-      )}
+      {!finalCommittee && committeeSelection}
     </WebFrame>
   );
 }

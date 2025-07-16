@@ -6,4 +6,5 @@ export const routes = {
   Invite: "/invite/:token",
   InviteAccept: "/invite/accept/",
   MembersDashboard: "/members",
+  CommitteePayments: "/committee-payments/:id",
 };
