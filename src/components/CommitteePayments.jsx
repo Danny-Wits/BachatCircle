@@ -97,15 +97,7 @@ function CommitteePayments() {
           </Affix>
         )}
 
-        <Paper
-          withBorder
-          radius="md"
-          p="xs"
-          mt="md"
-          shadow="md"
-          bg="white"
-          h="100%"
-        >
+        <Paper withBorder radius="md" p="xs" mt="md" shadow="md" h="100%">
           {" "}
           {isLoadingPayments ? (
             <Center>
