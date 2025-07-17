@@ -5,6 +5,7 @@ import {
   Dialog,
   Divider,
   Group,
+  Indicator,
   Loader,
   Notification,
   Paper,
@@ -15,6 +16,7 @@ import {
 import { DatePicker } from "@mantine/dates";
 import { useDisclosure } from "@mantine/hooks";
 import { useQuery } from "@tanstack/react-query";
+import dayjs from "dayjs";
 import { useState } from "react";
 import { CiCalendar } from "react-icons/ci";
 import { IoIosArrowBack } from "react-icons/io";
@@ -43,8 +45,26 @@ function CommitteePayments() {
     queryFn: () => getCommitteePaymentsOnDate(id, new Date(date).toISOString()),
   });
   const [opened, { toggle, close }] = useDisclosure(true);
+
   if (isLoading) return <PageLoader></PageLoader>;
   const committee = data[0];
+  const paymentDate = dayjs(committee?.started_on).add(
+    30 * committee?.current_round,
+    "day"
+  );
+  const dayRenderer = (date) => {
+    const day = dayjs(date).date();
+    return (
+      <Indicator
+        size={6}
+        color="red"
+        offset={-5}
+        disabled={!dayjs(date).isSame(paymentDate)}
+      >
+        <div>{day}</div>
+      </Indicator>
+    );
+  };
   if (committee?.status === "ready")
     return (
       <WebFrame>
@@ -80,9 +100,10 @@ function CommitteePayments() {
           </Text>
           <Center>
             <DatePicker
+              renderDay={dayRenderer}
               value={date}
               onChange={setDate}
-              minDate={new Date(committee?.started_on)}
+              minDate={dayjs(committee?.started_on)}
               maxDate={new Date(committee?.started_on).setDate(
                 committee?.total_months * 30
               )}
@@ -117,10 +138,13 @@ function CommitteePayments() {
                 ?.filter((payment) => payment?.member_id === user?.id)
                 ?.map((payment) => (
                   <PaymentRow
+                    key={payment?.id}
                     name={payment?.user_profiles?.full_name}
                     url={payment?.user_profiles?.avatar_url}
                     amount={payment?.expected_amount}
                     status={payment?.status}
+                    isPayment={true}
+                    meta={payment}
                   ></PaymentRow>
                 ))}
               <Divider></Divider>
@@ -131,6 +155,7 @@ function CommitteePayments() {
                 ?.filter((payment) => payment?.member_id !== user?.id)
                 ?.map((payment) => (
                   <PaymentRow
+                    key={payment?.id}
                     name={payment?.user_profiles?.full_name}
                     url={payment?.user_profiles?.avatar_url}
                     amount={payment?.expected_amount}

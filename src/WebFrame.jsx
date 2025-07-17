@@ -5,6 +5,8 @@ import {
   Burger,
   Button,
   Group,
+  NavLink as MantineNavLink,
+  Paper,
   Stack,
   Text,
   Title,
@@ -15,7 +17,12 @@ import { useDisclosure } from "@mantine/hooks";
 import { useEffect, useState } from "react";
 import { CiLogout } from "react-icons/ci";
 import { FaMoon, FaSun } from "react-icons/fa";
-import { RiAdminLine, RiMoneyRupeeCircleFill } from "react-icons/ri";
+import {
+  RiAdminLine,
+  RiGroupLine,
+  RiHomeHeartLine,
+  RiMoneyRupeeCircleFill,
+} from "react-icons/ri";
 import { useNavigate } from "react-router";
 import { checkAdmin } from "./utils/databaseHelper";
 import { routes } from "./utils/routes";
@@ -64,6 +71,19 @@ export function Header(opened, toggle, user, logout) {
         </Group>
         <ThemeChangeButton></ThemeChangeButton>
         <Group ml="xl" gap={10} visibleFrom="sm">
+          <Group gap={10} px={"sm"} mr="auto">
+            {LinksToPages.map((link) => (
+              <MantineNavLink
+                display={"flex"}
+                flex={0}
+                key={link.label}
+                active={link.link === window.location.pathname}
+                label={link.label}
+                leftSection={link.icon}
+                onClick={() => navigate(link.link)}
+              ></MantineNavLink>
+            ))}
+          </Group>
           <Avatar
             src={user?.user_metadata?.avatar_url}
             radius="xl"
@@ -116,23 +136,58 @@ export function AdminButton({ user }) {
 }
 
 export function MobileNav(user, logout) {
+  const navigate = useNavigate();
   return (
     <Stack h={"100%"}>
-      <Stack mt={"auto"}>
-        <Group>
-          <Avatar
-            src={user?.user_metadata?.avatar_url}
-            radius="xl"
-            name={user?.user_metadata?.name || "Anonymous"}
-            color="initials"
-          ></Avatar>
-          <Text c={"dimmed"}>{user?.user_metadata?.name || "Anonymous"}</Text>
-        </Group>
-        <AdminButton user={user}></AdminButton>
-        <Button fullWidth onClick={logout} leftSection={<CiLogout />}>
-          Log Out
-        </Button>
+      <Title order={3}>Useful Link</Title>
+      <Stack gap={10} px={"sm"}>
+        {LinksToPages.map((link) => (
+          <MantineNavLink
+            key={link.label}
+            active={link.link === window.location.pathname}
+            label={link.label}
+            leftSection={link.icon}
+            onClick={() => navigate(link.link)}
+          ></MantineNavLink>
+        ))}
       </Stack>
+      <Paper withBorder mt={"auto"} radius="md" p="sm" shadow="md">
+        <Stack gap={10} p={"sm"}>
+          {" "}
+          <Group mb={"md"}>
+            <Avatar
+              src={user?.user_metadata?.avatar_url}
+              radius="xl"
+              name={user?.user_metadata?.name || "Anonymous"}
+              color="initials"
+            ></Avatar>
+            <Stack gap={0}>
+              <Text c={"dimmed"} fw={600} size="sm">
+                {user?.user_metadata?.name || "Anonymous"}
+              </Text>
+              <Text c={"dimmed"} size="xs">
+                {user?.email}{" "}
+              </Text>
+            </Stack>
+          </Group>
+          <AdminButton user={user}></AdminButton>
+          <Button fullWidth onClick={logout} leftSection={<CiLogout />}>
+            Log Out
+          </Button>{" "}
+        </Stack>{" "}
+      </Paper>
     </Stack>
   );
 }
+const LinksToPages = [
+  {
+    label: "Home",
+    icon: <RiHomeHeartLine />,
+    link: routes.Home,
+  },
+  {
+    label: "Members",
+    icon: <RiGroupLine />,
+    link: routes.MembersDashboard,
+  },
+];

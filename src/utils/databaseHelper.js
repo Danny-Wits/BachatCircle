@@ -183,6 +183,64 @@ export const getCommitteePaymentsOnDate = async (id, payment_data) => {
   return payments;
 };
 
+export async function uploadPaymentProof({
+  file,
+  committee_id,
+  member_id,
+  id,
+}) {
+  const { data: payment } = await supabase
+    .from("expected_payments")
+    .select("status")
+    .eq("id", id);
+  if (!payment || payment[0]?.status !== "pending") {
+    showError({ message: "Already uploaded proof" });
+    return;
+  }
+  const fileExt = file.name.split(".").pop();
+  const filePath = `committee/${committee_id}/${member_id}/${id}-${Date.now()}.${fileExt}`;
+
+  // Upload the file to the bucket
+  const { error: uploadError } = await supabase.storage
+    .from("payment-proofs")
+    .upload(filePath, file, {
+      cacheControl: "3600",
+      upsert: true,
+    });
+
+  if (uploadError) {
+    showError(uploadError);
+  }
+
+  const { error: updateError } = await supabase
+    .from("expected_payments")
+    .update({
+      proof_url: filePath,
+      status: "uploaded",
+      paid_at: new Date().toISOString(),
+    })
+    .eq("id", id);
+
+  if (updateError) {
+    showError(updateError);
+  }
+
+  return {
+    filePath,
+  };
+}
+export const getImageUrl = async (id) => {
+  const { data: payment } = await supabase
+    .from("expected_payments")
+    .select("proof_url")
+    .eq("id", id);
+  const url = payment[0]?.proof_url;
+  const { data, error } = await supabase.storage
+    .from("payment-proofs")
+    .createSignedUrl(url, 60 * 60);
+  if (error) showError(error);
+  return data.signedUrl;
+};
 //!Extras
 export function timeAgo(isoTime) {
   const diff = Math.floor((Date.now() - new Date(isoTime)) / 1000);
