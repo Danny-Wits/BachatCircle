@@ -10,6 +10,7 @@ import { createRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router";
 import App from "./App";
 import CommitteePayments from "./components/CommitteePayments";
+import "./index.css";
 import AdminDashboard from "./pages/AdminDashboard";
 import BecomeOrganizer from "./pages/BecomeOrganizer";
 import Invite from "./pages/Invite";
