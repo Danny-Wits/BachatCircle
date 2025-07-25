@@ -21,6 +21,7 @@ import {
   RiAdminLine,
   RiGroupLine,
   RiHomeHeartLine,
+  RiInbox2Fill,
   RiMoneyRupeeCircleFill,
 } from "react-icons/ri";
 import { useNavigate } from "react-router";
@@ -189,5 +190,10 @@ const LinksToPages = [
     label: "Members",
     icon: <RiGroupLine />,
     link: routes.MembersDashboard,
+  },
+  {
+    label: "Invites",
+    icon: <RiInbox2Fill />,
+    link: routes.InviteAccept,
   },
 ];

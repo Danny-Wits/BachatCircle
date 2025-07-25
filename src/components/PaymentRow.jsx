@@ -18,9 +18,22 @@ import { useDisclosure } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { getImageUrl, uploadPaymentProof } from "../utils/databaseHelper";
+import { IoMdCheckmarkCircle } from "react-icons/io";
+import {
+  getImageUrl,
+  uploadPaymentProof,
+  verifyPayment,
+} from "../utils/databaseHelper";
 
-function PaymentRow({ name, url, amount, status, isPayment = false, meta }) {
+function PaymentRow({
+  name,
+  url,
+  amount,
+  status,
+  isPayment = false,
+  meta,
+  isOrg = false,
+}) {
   if (!name) name = "Anonymous";
   const [opened, { open, close }] = useDisclosure(false);
   const [openedImg, { open: openImg, close: closeImg }] = useDisclosure(false);
@@ -38,6 +51,19 @@ function PaymentRow({ name, url, amount, status, isPayment = false, meta }) {
       notifications.show({
         title: "Success",
         message: "Proof uploaded successfully",
+        color: "green",
+      });
+      queryClient.refetchQueries(["payments"]);
+      close();
+    },
+  });
+  const { mutate: verifyPaymentById, isPending: isVerifying } = useMutation({
+    mutationKey: ["verifyPayment", meta?.id],
+    mutationFn: (id) => verifyPayment(id),
+    onSuccess: () => {
+      notifications.show({
+        title: "Success",
+        message: "Payment verified successfully",
         color: "green",
       });
       queryClient.refetchQueries(["payments"]);
@@ -83,10 +109,25 @@ function PaymentRow({ name, url, amount, status, isPayment = false, meta }) {
           </Group>
 
           <Group pos={"absolute"} right={10} top={5}>
-            <Stack>
-              <Badge color={colorsForStatus[status]} variant="dot" size="xs">
-                {status}
-              </Badge>
+            <Stack gap={4} justify="center">
+              {status && (
+                <Badge color={colorsForStatus[status]} variant="dot" size="xs">
+                  {status}
+                </Badge>
+              )}
+
+              {isOrg && meta?.status === "uploaded" && (
+                <Button
+                  onClick={() => verifyPaymentById(meta?.id)}
+                  loading={isVerifying}
+                  color="green"
+                  variant="light"
+                  rightSection={<IoMdCheckmarkCircle />}
+                  size="xs"
+                >
+                  Verify
+                </Button>
+              )}
             </Stack>
           </Group>
         </Group>{" "}
@@ -106,7 +147,7 @@ function PaymentRow({ name, url, amount, status, isPayment = false, meta }) {
           </Stack>
         </Modal>
         <Modal opened={openedImg} onClose={closeImg} title="Payment Proof">
-          {isPayment && meta?.status === "uploaded" && !isLoading ? (
+          {(isPayment || isOrg) && meta?.status === "uploaded" && !isLoading ? (
             <ScrollArea type="auto" offsetScrollbars>
               <Image src={proof_url} fit="contain"></Image>
             </ScrollArea>
@@ -126,8 +167,8 @@ function PaymentRow({ name, url, amount, status, isPayment = false, meta }) {
             Click to upload payment proof
           </Text>
         )}
-        {isPayment && meta?.status === "uploaded" && (
-          <Stack gap={1}>
+        {(isPayment || isOrg) && meta?.status === "uploaded" && (
+          <Stack gap={1} pt={4}>
             <Text size="xs" c="lime">
               Payment proof uploaded successfully
             </Text>

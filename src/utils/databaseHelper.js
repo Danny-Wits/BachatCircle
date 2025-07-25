@@ -127,7 +127,13 @@ export const getCommittee = async (id) => {
   if (error) showError(error);
   return committee;
 };
-
+export const isCommitteeOrganizer = async (com_id) => {
+  let { data, error } = await supabase.rpc("is_org_user", {
+    com_id,
+  });
+  if (error) showError(error);
+  return data;
+};
 export const getCommitteesForMember = async (id) => {
   let { data: committee, error } = await supabase
     .from("committee_members")
@@ -182,7 +188,27 @@ export const getCommitteePaymentsOnDate = async (id, payment_data) => {
   if (error) showError(error);
   return payments;
 };
-
+export const verifyPayment = async (id) => {
+  let { error } = await supabase.rpc("verify_payment", {
+    payment_id: id,
+  });
+  if (error) showError(error);
+};
+export const getPendingPaymentsForMembers = async (id, onlyToday) => {
+  let { data, error } = await supabase.rpc("get_pending_payments", {
+    comm_id: id,
+    only_today: onlyToday,
+  });
+  if (error) showError(error);
+  return data;
+};
+export const todaysContribution = async (id) => {
+  let { data, error } = await supabase.rpc("contribution_summary_today", {
+    comm_id: id,
+  });
+  if (error) showError(error);
+  return data;
+};
 export async function uploadPaymentProof({
   file,
   committee_id,
@@ -229,6 +255,7 @@ export async function uploadPaymentProof({
     filePath,
   };
 }
+
 export const getImageUrl = async (id) => {
   const { data: payment } = await supabase
     .from("expected_payments")

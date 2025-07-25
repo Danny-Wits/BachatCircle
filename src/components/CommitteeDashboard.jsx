@@ -9,6 +9,8 @@ import {
   Group,
   Modal,
   Paper,
+  SegmentedControl,
+  Spoiler,
   Stack,
   Text,
   TextInput,
@@ -18,23 +20,27 @@ import {
 import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { FaCopy } from "react-icons/fa";
 import {
   createInvite,
   createToken,
   getBaseURL,
+  getPendingPaymentsForMembers,
   startCommittee,
   timeAgo,
+  todaysContribution,
 } from "../utils/databaseHelper";
 import useSupabase from "../utils/supabaseHook";
 import Members from "./Members";
+import PaymentRow from "./PaymentRow";
 import StatsProgress from "./ProgressSection";
 
 function CommitteeDashboard({ committee, members }) {
   const [opened, { open, close }] = useDisclosure(false);
   const { user } = useSupabase();
+  const [onlyToday, setOnlyToday] = useState(true);
   const form = useForm({
     initialValues: {
       email: "",
@@ -51,10 +57,18 @@ function CommitteeDashboard({ committee, members }) {
     mutationFn: async (values) => await createInvite(values),
     onSuccess: (data) => {
       const { token } = data;
-      setInviteToken(token);
+      setInviteToken(encodeURIComponent(token));
     },
   });
+  const { data: pendingPayments, isPending: isPendingPayments } = useQuery({
+    queryKey: ["pendingPayments", onlyToday],
+    queryFn: () => getPendingPaymentsForMembers(committee?.id, onlyToday),
+  });
 
+  const { data: contribution } = useQuery({
+    queryKey: ["todaysContribution"],
+    queryFn: () => todaysContribution(committee?.id),
+  });
   const handleGenerateInvite = async (values) => {
     const token = await createToken(
       form?.values?.email,
@@ -112,7 +126,9 @@ function CommitteeDashboard({ committee, members }) {
                     </TooltipFloating>
                   )}
                 </CopyButton>
-                <Code c={"blue"}>{inviteLink}</Code>
+                <Code c={"blue"} style={{ userSelect: "text" }}>
+                  {inviteLink}
+                </Code>
                 <Button fullWidth onClick={() => setInviteToken("")}>
                   Clear
                 </Button>
@@ -180,11 +196,36 @@ function CommitteeDashboard({ committee, members }) {
       </TitleCard>
 
       <TitleCard title="Stats">
-        <StatsProgress data={fillData(committee, members)}></StatsProgress>
+        <StatsProgress
+          data={fillData(committee, members, contribution)}
+        ></StatsProgress>
       </TitleCard>
-
+      <TitleCard
+        title="Pending Payments"
+        visible={committee?.status === "active"}
+      >
+        <Stack>
+          <SegmentedControl
+            color="orange"
+            transitionDuration={500}
+            value={onlyToday ? "Today" : "Total"}
+            data={["Today", "Total"]}
+            onChange={(value) => setOnlyToday(value === "Today")}
+          ></SegmentedControl>
+          {pendingPayments?.length === 0 ||
+            (isPendingPayments ? (
+              <Text c="dimmed" size="xs">
+                No pending payments
+              </Text>
+            ) : (
+              <PendingPayments payments={pendingPayments}></PendingPayments>
+            ))}
+        </Stack>
+      </TitleCard>
       <TitleCard title="Members">
-        <Members members={members}></Members>
+        <Spoiler hideLabel="Hide" showLabel="Show more" maxHeight={160}>
+          <Members members={members}></Members>
+        </Spoiler>
       </TitleCard>
 
       {/* <Code w={300}>{JSON.stringify(committee, null, 2)}</Code> */}
@@ -194,7 +235,7 @@ function CommitteeDashboard({ committee, members }) {
 
 export default CommitteeDashboard;
 
-function fillData(committee, members) {
+function fillData(committee, members, contribution) {
   const currentMembers = members?.length || 0;
   return [
     {
@@ -205,30 +246,53 @@ function fillData(committee, members) {
       icon: "members",
     },
     {
+      label: "Daily Contribution",
+      stats: "Rs. " + contribution?.current + "/" + contribution?.required,
+      progress: (100 * contribution?.current) / contribution?.required,
+      color: "red",
+      icon: "money",
+    },
+    {
       label: "Total Months",
       stats: committee.current_round + "/" + committee.total_months + " months",
       progress: (100 * committee.current_round) / committee.total_months,
       color: "blue",
       icon: "months",
     },
-    {
-      label: "Daily Contribution",
-      stats: "Rs. " + committee.daily_contribution,
-      progress: 0,
-      color: "red",
-      icon: "money",
-    },
   ];
 }
 
-function TitleCard({ title, children }) {
+function TitleCard({ title, children, visible = true }) {
   return (
-    <Paper withBorder radius="md" p="xs">
-      <Text fw={600} size="sm">
-        {title}
-      </Text>
-      <Divider mb="md" mt="xs"></Divider>
-      {children}
-    </Paper>
+    <>
+      {visible && (
+        <>
+          <Paper withBorder radius="md" p="xs">
+            <Text fw={600} size="sm">
+              {title}
+            </Text>
+            <Divider mb="md" mt="xs"></Divider>
+            {children}
+          </Paper>
+        </>
+      )}
+    </>
+  );
+}
+
+function PendingPayments({ payments }) {
+  return (
+    <Spoiler hideLabel="Hide" showLabel="Show more" maxHeight={260}>
+      <Stack>
+        {payments?.map((payment, index) => (
+          <PaymentRow
+            key={index}
+            name={payment?.name}
+            url={payment?.avatar_url}
+            amount={payment?.pending}
+          ></PaymentRow>
+        ))}
+      </Stack>
+    </Spoiler>
   );
 }
