@@ -61,13 +61,15 @@ function CommitteeDashboard({ committee, members }) {
     },
   });
   const { data: pendingPayments, isPending: isPendingPayments } = useQuery({
-    queryKey: ["pendingPayments", onlyToday],
+    queryKey: ["pendingPayments", committee?.id, onlyToday],
     queryFn: () => getPendingPaymentsForMembers(committee?.id, onlyToday),
+    enabled: !!committee?.id,
   });
 
   const { data: contribution } = useQuery({
-    queryKey: ["todaysContribution"],
+    queryKey: ["todaysContribution", committee?.id],
     queryFn: () => todaysContribution(committee?.id),
+    enabled: !!committee?.id,
   });
   const handleGenerateInvite = async (values) => {
     const token = await createToken(

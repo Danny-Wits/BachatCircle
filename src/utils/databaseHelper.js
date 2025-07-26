@@ -137,7 +137,7 @@ export const isCommitteeOrganizer = async (com_id) => {
 export const getCommitteesForMember = async (id) => {
   let { data: committee, error } = await supabase
     .from("committee_members")
-    .select("* , committee(name)")
+    .select("* , committee(*)")
     .eq("user_id", id);
   if (error) showError(error);
   return committee;

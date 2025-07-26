@@ -1,8 +1,9 @@
-import { Button, Divider, Paper, Select, Text } from "@mantine/core";
+import { Button, Group, Select } from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { FaCoins } from "react-icons/fa";
 import { Navigate } from "react-router";
-import Members from "../components/Members";
+import CommitteeDashboard from "../components/CommitteeDashboard";
 import PageLoader from "../components/PageLoader";
 import PageTitle from "../components/PageTitle";
 import {
@@ -26,7 +27,17 @@ function MembersDashboard() {
     queryFn: () => getCommitteeMembers(committee?.value),
     enabled: !!committee?.value,
   });
+  useEffect(() => {
+    if (committees?.length > 0) {
+      setCommittee({ value: committees[0]?.committee_id });
+    }
+  }, [committees]);
+
   if (isLoadingCommittee) return <PageLoader></PageLoader>;
+
+  const loadedCommittee = Array.from(committees).filter(
+    (c) => c?.committee_id === committee?.value
+  )[0]?.committee;
   const committeeSelection = (
     <>
       <Select
@@ -36,29 +47,10 @@ function MembersDashboard() {
           label: committee?.committee?.name,
           value: committee?.committee_id,
         }))}
-        value={committee?.committee?.name}
         onChange={(_, option) => setCommittee(option)}
+        value={committee?.value}
         searchable
       ></Select>
-      {members && (
-        <Paper withBorder radius="md" p="xs">
-          <Text fw={600}> {committee?.label}</Text>
-          <Button
-            onClick={() => setFinalCommittee(committee)}
-            fullWidth
-            variant="light"
-            size="sm"
-          >
-            Select Committee
-          </Button>
-          <Divider my="sm"></Divider>
-          <Text c="dimmed" mb="xs">
-            {" "}
-            Members: {members?.length}
-          </Text>
-          <Members members={members}></Members>
-        </Paper>
-      )}
     </>
   );
   if (finalCommittee)
@@ -71,6 +63,26 @@ function MembersDashboard() {
     <WebFrame>
       <PageTitle title="Members Dashboard" />
       {!finalCommittee && committeeSelection}
+      {members && (
+        <Group p={"md"}>
+          <Button
+            onClick={() => setFinalCommittee(committee)}
+            fullWidth
+            color="blue"
+            variant="light"
+            size="sm"
+            mt={"md"}
+            rightSection={<FaCoins />}
+          >
+            Go to Payments Page
+          </Button>
+        </Group>
+      )}
+      {!!loadedCommittee && (
+        <CommitteeDashboard committee={loadedCommittee} members={members}>
+          {" "}
+        </CommitteeDashboard>
+      )}
     </WebFrame>
   );
 }
