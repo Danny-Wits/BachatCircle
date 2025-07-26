@@ -15,6 +15,7 @@ function CreateCommittee({ org_id }) {
     initialValues: {
       name: "",
       description: "",
+      upi_id: "",
       org_id,
       daily_contribution: 50,
       total_months: 12,
@@ -33,6 +34,11 @@ function CreateCommittee({ org_id }) {
           : value.length > 100
           ? "Description must be at most 100 characters"
           : null,
+      upi_id: (value) =>
+        !/^[a-zA-Z0-9.\-_]{3,20}@[a-zA-Z]{2,}$/.test(value)
+          ? "Enter a valid UPI ID (e.g., name@bank)"
+          : null,
+
       daily_contribution: (value) =>
         value < 50
           ? "Daily contribution must be at least 50"
@@ -59,6 +65,7 @@ function CreateCommittee({ org_id }) {
     validateInputOnChange: [
       "name",
       "description",
+      "upi_id",
       "total_members",
       "daily_contribution",
       "total_months",
@@ -91,6 +98,12 @@ function CreateCommittee({ org_id }) {
               placeholder="Enter description"
               withAsterisk
               {...form.getInputProps("description")}
+            />
+            <TextInput
+              label="UPI ID"
+              placeholder="Enter UPI ID"
+              withAsterisk
+              {...form.getInputProps("upi_id")}
             />
             <NumberInput
               label="Daily Contribution"

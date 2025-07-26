@@ -70,6 +70,15 @@ export default function Hero({ user }) {
               >
                 <span className={classes.controlText}>Go to Dashboard</span>
               </Button>
+              <Button
+                variant="default"
+                radius="xl"
+                size="sm"
+                className={classes.control}
+                onClick={() => navigate(routes.MembersDashboard)}
+              >
+                <span className={classes.controlText}>Committees</span>
+              </Button>
             </Group>
           ) : (
             <Group mt={30}>

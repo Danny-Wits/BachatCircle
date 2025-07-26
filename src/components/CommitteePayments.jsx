@@ -1,6 +1,7 @@
 import {
   ActionIcon,
   Affix,
+  Button,
   Center,
   Dialog,
   Divider,
@@ -15,7 +16,8 @@ import {
   Title,
 } from "@mantine/core";
 import { DatePicker } from "@mantine/dates";
-import { useDisclosure } from "@mantine/hooks";
+import { useClipboard, useDisclosure } from "@mantine/hooks";
+import { notifications } from "@mantine/notifications";
 import { useQuery } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import { useState } from "react";
@@ -32,9 +34,12 @@ import WebFrame from "../WebFrame";
 import PageLoader from "./PageLoader";
 import PaymentRow from "./PaymentRow";
 function CommitteePayments() {
+  const clipboard = useClipboard();
+  const navigate = useNavigate();
+
   const id = useParams()?.id;
   const { user } = useSupabase();
-  const navigate = useNavigate();
+
   const [isOrgView, setIsOrgView] = useState(false);
   const { data, isLoading } = useQuery({
     queryKey: ["committee", id],
@@ -93,11 +98,54 @@ function CommitteePayments() {
     );
   if (isLoadingOrg) return <PageLoader></PageLoader>;
   if (isOrgView && !isOrg) return <Navigate to="/"></Navigate>;
+  const handlePayment = () => {
+    if (!committee?.upi_id) {
+      notifications.show({
+        title: "Committee UPI ID ",
+        message: "UPI ID not found",
+      });
+      return;
+    }
+    // UPI ID, Name, Amount, Note
+    const upiId = committee?.upi_id;
+    const name = committee?.name || "";
+    const amount = committee?.daily_contribution;
+    const note = "Daily Contribution";
+
+    const upiUrl = `upi://pay?pa=${upiId}&pn=${encodeURIComponent(
+      name
+    )}&am=${amount}&cu=INR&tn=${encodeURIComponent(note)}`;
+
+    //navigate
+    window.open(upiUrl);
+  };
   return (
     <WebFrame>
       {" "}
       <Stack>
         <Head />
+        <Stack gap={10} p={"xs"}>
+          <Text size="xs">
+            The upi id you have to pay to is{" "}
+            <span
+              style={{ cursor: "pointer", color: "orange" }}
+              onClick={() => {
+                clipboard.copy(committee?.upi_id);
+                notifications.show({
+                  title: "Copied to clipboard",
+                  color: "green",
+                });
+              }}
+            >
+              {committee?.upi_id}
+            </span>{" "}
+            . Once you have made the payment, please take a screenshot of the
+            payment receipt and upload it below .
+          </Text>
+          <Button onClick={handlePayment} radius="xl" variant="light">
+            Pay Now to the Committee UPI
+          </Button>
+        </Stack>
         <Dialog
           opened={opened}
           withCloseButton

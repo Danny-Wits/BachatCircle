@@ -18,7 +18,7 @@ import {
   TooltipFloating,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
-import { useDisclosure } from "@mantine/hooks";
+import { useClipboard, useDisclosure } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
@@ -79,6 +79,7 @@ function CommitteeDashboard({ committee, members }) {
   };
   const inviteLink = `${getBaseURL()}/invite/${inviteToken}`;
   const isFull = members?.length == committee?.total_members;
+  const clipboard = useClipboard();
   const { mutate: start, isPending: isPendingStart } = useMutation({
     mutationKey: ["startCommittee"],
     mutationFn: async () => await startCommittee(committee.id),
@@ -144,13 +145,28 @@ function CommitteeDashboard({ committee, members }) {
         </form>
       </Modal>
       <Paper withBorder radius="md" p="xs">
-        <Stack>
+        <Stack spacing="xs" gap={4}>
           <Group>
             <Title order={2}>{committee?.name}</Title>
             <Badge color="green">{committee?.status}</Badge>
           </Group>
           <Text c="dimmed" size="xs">
             {committee?.description}
+          </Text>
+          <Text c="dimmed" size="xs">
+            UPI ID:{" "}
+            <span
+              style={{ cursor: "pointer", color: "orange" }}
+              onClick={() => {
+                clipboard.copy(committee?.upi_id);
+                notifications.show({
+                  title: "Copied to clipboard",
+                  color: "green",
+                });
+              }}
+            >
+              {committee?.upi_id}
+            </span>{" "}
           </Text>
           <Text c="dimmed" size="xs">
             Created {timeAgo(committee?.created_at)}
@@ -161,7 +177,7 @@ function CommitteeDashboard({ committee, members }) {
           </Text>
         </Stack>
       </Paper>
-      <TitleCard title="Actions">
+      <TitleCard title="Actions" visible={committee?.status === "ready"}>
         <Group>
           {committee?.status === "active" ? (
             <Badge color="green"> Committee has Started</Badge>
