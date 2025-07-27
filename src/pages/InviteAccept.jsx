@@ -1,19 +1,12 @@
-import {
-  ActionIcon,
-  Group,
-  Paper,
-  Stack,
-  Text,
-  ThemeIcon,
-} from "@mantine/core";
+import { Button, Group, Paper, Stack, Text, ThemeIcon } from "@mantine/core";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { FaCheckCircle } from "react-icons/fa";
 import { IoIosNotificationsOutline } from "react-icons/io";
 import WebFrame from "../WebFrame";
 import PageLoader from "../components/PageLoader";
+import PageTitle from "../components/PageTitle";
 import { acceptInvite, getInvites, timeAgo } from "../utils/databaseHelper";
 import useSupabase from "../utils/supabaseHook";
-import PageTitle from "../components/PageTitle";
 
 function InviteAccept() {
   const { user } = useSupabase();
@@ -54,15 +47,17 @@ function InviteAccept() {
                   {invite?.used ? "Accepted" : "Pending"}
                 </Text>
               </Stack>
-              <ActionIcon
+              <Button
                 color={invite.used ? "green" : "red"}
                 variant="light"
                 onClick={() => accept(invite.id)}
                 disabled={invite.used}
                 loading={isPending}
+                rightSection={<FaCheckCircle />}
               >
-                <FaCheckCircle />
-              </ActionIcon>
+                {" "}
+                Accept
+              </Button>
               <Stack ml={"auto"} justify="space-around" gap={0}>
                 <Text size="xs">
                   <b> {invite?.token.split("|")[2]}</b>

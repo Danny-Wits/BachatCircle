@@ -9,25 +9,30 @@ import {
   Indicator,
   Loader,
   Notification,
+  NumberFormatter,
   Paper,
   SegmentedControl,
   Stack,
+  Stepper,
   Text,
   Title,
 } from "@mantine/core";
+import { useState } from "react";
+
 import { DatePicker } from "@mantine/dates";
 import { useClipboard, useDisclosure } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import dayjs from "dayjs";
-import { useState } from "react";
-import { CiCalendar } from "react-icons/ci";
+import { CiCalendar, CiMobile3 } from "react-icons/ci";
 import { IoIosArrowBack } from "react-icons/io";
+import { RiForwardEndFill } from "react-icons/ri";
 import { Navigate, useNavigate, useParams } from "react-router";
 import {
   getCommitteeForUser,
   getCommitteePaymentsOnDate,
   isCommitteeOrganizer,
+  tryEndCommittee,
 } from "../utils/databaseHelper";
 import useSupabase from "../utils/supabaseHook";
 import WebFrame from "../WebFrame";
@@ -35,8 +40,7 @@ import PageLoader from "./PageLoader";
 import PaymentRow from "./PaymentRow";
 function CommitteePayments() {
   const clipboard = useClipboard();
-  const navigate = useNavigate();
-
+  const queryClient = useQueryClient();
   const id = useParams()?.id;
   const { user } = useSupabase();
 
@@ -62,9 +66,10 @@ function CommitteePayments() {
   if (isLoading) return <PageLoader></PageLoader>;
   const committee = data[0];
   const paymentDate = dayjs(committee?.started_on).add(
-    30 * committee?.current_round,
+    30 * committee?.current_round - 1,
     "day"
   );
+  const isPaymentDate = dayjs(date).isSame(paymentDate);
   const dayRenderer = (date) => {
     const day = dayjs(date).date();
     return (
@@ -142,9 +147,15 @@ function CommitteePayments() {
             . Once you have made the payment, please take a screenshot of the
             payment receipt and upload it below .
           </Text>
-          <Button onClick={handlePayment} radius="xl" variant="light">
+          <Button
+            onClick={handlePayment}
+            radius="xl"
+            variant="light"
+            rightSection={<CiMobile3 />}
+          >
             Pay Now to the Committee UPI
           </Button>
+          {isPaymentDate && isOrg && <MonthEndStepper />}
         </Stack>
         <Dialog
           opened={opened}
@@ -162,8 +173,9 @@ function CommitteePayments() {
               value={date}
               onChange={setDate}
               minDate={dayjs(committee?.started_on)}
-              maxDate={new Date(committee?.started_on).setDate(
-                committee?.total_months * 30
+              maxDate={dayjs(committee?.started_on).add(
+                30 * committee?.total_months - 1,
+                "day"
               )}
             />
           </Center>
@@ -262,6 +274,157 @@ function CommitteePayments() {
           ></PaymentRow>
         ))}
       </Stack>
+    );
+  }
+
+  function MonthEndStepper() {
+    const [active, setActive] = useState(0);
+    const [winnerData, setWinnerData] = useState({});
+    const { mutateAsync: endMonth, isPending } = useMutation({
+      mutationKey: ["endMonth"],
+      mutationFn: async () => await tryEndCommittee(committee?.id, date),
+      onSuccess: (data) => {
+        setWinnerData({ ...data });
+        notifications.show({
+          title: "Success",
+          message: "Month ended successfully",
+          color: "green",
+        });
+        nextStep();
+      },
+    });
+    const nextStep = async () => {
+      setActive((current) => (current < 3 ? current + 1 : current));
+    };
+
+    const nextHandler = () => {
+      if (active === 0) {
+        endMonth();
+      }
+      if (active === 1) {
+        if (!!winnerData) {
+          nextStep();
+        } else {
+          notifications.show({
+            title: "Error",
+            message: "Something went wrong",
+            color: "red",
+          });
+        }
+      }
+      if (active === 2) {
+        if (!!winnerData) {
+          nextStep();
+        } else {
+          notifications.show({
+            title: "Error",
+            message: "Something went wrong",
+            color: "red",
+          });
+        }
+      }
+    };
+
+    return (
+      <>
+        <Divider my={"md"}></Divider>
+        <Text size="md" fw={600} c="dimmed" ta="center" mb={"md"}>
+          The End of the Month
+        </Text>
+
+        <Stepper
+          active={active}
+          onStepClick={setActive}
+          size="xs"
+          allowNextStepsSelect={false}
+        >
+          <Stepper.Step
+            label="Verification"
+            description="Verify all the Payments of the month"
+            allowStepSelect={false}
+          >
+            <Text c="dimmed" size="sm">
+              Click Next to verify all the payments
+            </Text>
+          </Stepper.Step>
+          <Stepper.Step
+            label="Calculation"
+            description="Calculate the total amount"
+            allowStepSelect={false}
+          >
+            {" "}
+            <Notification withCloseButton={false} color="green">
+              <Text c="dimmed">All the payments are verified ✅</Text>{" "}
+              <Text c="dimmed" size="sm" mt="lg">
+                Click Next to calculate the total amount
+              </Text>
+            </Notification>
+          </Stepper.Step>
+          <Stepper.Step
+            label="Winner"
+            description="Generating the Winner"
+            allowStepSelect={false}
+          >
+            {" "}
+            <Notification withCloseButton={false} color="blue">
+              <Text c="dimmed">
+                The Total amount collected was{" "}
+                <Text c="orange" fw={600}>
+                  <NumberFormatter
+                    value={winnerData?.withdrawal_amount}
+                    displayType="text"
+                    thousandSeparator=","
+                    decimalSeparator="."
+                    prefix="Rs. "
+                  />
+                </Text>
+              </Text>
+            </Notification>
+            <Text c="dimmed" size="sm" mt="lg">
+              Click Next to generate the winner
+            </Text>
+          </Stepper.Step>
+          <Stepper.Completed>
+            <Stack>
+              <Text size="sm" c="dimmed" fw={700}>
+                Congratulation 🎉🎉🎉 <br />
+              </Text>
+              <PaymentRow
+                name={winnerData?.name}
+                url={winnerData?.avatar_url}
+                amount={winnerData?.withdrawal_amount}
+              ></PaymentRow>
+            </Stack>
+          </Stepper.Completed>
+        </Stepper>
+        {active < 3 ? (
+          <Group justify="center" mt="xl">
+            <Button
+              onClick={nextHandler}
+              size="xs"
+              variant="light"
+              loading={isPending}
+            >
+              Next step
+            </Button>
+          </Group>
+        ) : (
+          <Group justify="center" mt="xl">
+            <Button
+              onClick={() => {
+                queryClient.refetchQueries(["committee"]);
+              }}
+              size="xs"
+              variant="light"
+              rightSection={<RiForwardEndFill />}
+            >
+              End Month
+            </Button>
+          </Group>
+        )}
+
+        <Divider my={"md"}></Divider>
+      </>
     );
   }
 }

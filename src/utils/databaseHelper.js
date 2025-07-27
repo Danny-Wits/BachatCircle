@@ -178,6 +178,24 @@ export const startCommittee = async (id) => {
   });
   if (error) showError(error);
 };
+
+export const tryEndCommittee = async (id, date) => {
+  let { data, error } = await supabase.rpc("end_month_test", {
+    comm_id: id,
+  });
+  if (error) showError(error);
+  return data;
+};
+
+export const getWinners = async (id) => {
+  let { data: winners, error } = await supabase
+    .from("monthly_winners")
+    .select("*,user_profiles(*)")
+    .eq("committee_id", id)
+    .order("id");
+  if (error) showError(error);
+  return winners;
+};
 //!Payments
 export const getCommitteePaymentsOnDate = async (id, payment_data) => {
   let { data: payments, error } = await supabase
@@ -265,7 +283,12 @@ export const getImageUrl = async (id) => {
   const { data, error } = await supabase.storage
     .from("payment-proofs")
     .createSignedUrl(url, 60 * 60);
-  if (error) showError(error);
+  if (error)
+    showError({
+      title: "Force Verified",
+      message:
+        "Image was not found . Meaning the transaction was force verified",
+    });
   return data.signedUrl;
 };
 //!Extras
@@ -281,7 +304,7 @@ export function timeAgo(isoTime) {
 }
 const showError = (error) => {
   notifications.show({
-    title: "Error",
+    title: error.title || "Error",
     message: error.message,
     color: "red",
   });

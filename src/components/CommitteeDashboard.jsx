@@ -34,6 +34,7 @@ import {
 } from "../utils/databaseHelper";
 import useSupabase from "../utils/supabaseHook";
 import Members from "./Members";
+import MonthlyWinner from "./MonthlyWinner";
 import PaymentRow from "./PaymentRow";
 import StatsProgress from "./ProgressSection";
 
@@ -239,6 +240,9 @@ function CommitteeDashboard({ committee, members }) {
               <PendingPayments payments={pendingPayments}></PendingPayments>
             ))}
         </Stack>
+      </TitleCard>
+      <TitleCard title="Winners" visible={committee?.status === "active"}>
+        <MonthlyWinner committee_id={committee?.id} />
       </TitleCard>
       <TitleCard title="Members">
         <Spoiler hideLabel="Hide" showLabel="Show more" maxHeight={160}>

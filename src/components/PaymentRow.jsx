@@ -28,7 +28,7 @@ import {
 function PaymentRow({
   name,
   url,
-  amount,
+  amount = 0,
   status,
   isPayment = false,
   meta,
@@ -43,6 +43,7 @@ function PaymentRow({
     queryKey: ["payment-proof", meta?.id],
     queryFn: () => getImageUrl(meta?.id),
     enabled: !!meta?.id && openedImg,
+    retry: false,
   });
   const { mutate: uploadProof, isPending } = useMutation({
     mutationKey: ["uploadProof"],
@@ -87,7 +88,14 @@ function PaymentRow({
     }
   };
   return (
-    <Paper withBorder radius="md" p={"xs"} shadow="xs" pos={"relative"}>
+    <Paper
+      withBorder
+      radius="md"
+      p={"xs"}
+      shadow="xs"
+      pos={"relative"}
+      miw={150}
+    >
       <Stack>
         <Group>
           <Group>
@@ -115,7 +123,6 @@ function PaymentRow({
                   {status}
                 </Badge>
               )}
-
               {isOrg && meta?.status === "uploaded" && (
                 <Button
                   onClick={() => verifyPaymentById(meta?.id)}
@@ -126,6 +133,18 @@ function PaymentRow({
                   size="xs"
                 >
                   Verify
+                </Button>
+              )}{" "}
+              {isOrg && meta?.status === "pending" && (
+                <Button
+                  onClick={() => verifyPaymentById(meta?.id)}
+                  loading={isVerifying}
+                  color="red"
+                  variant="light"
+                  rightSection={<IoMdCheckmarkCircle />}
+                  size="xs"
+                >
+                  Force Verify{" "}
                 </Button>
               )}
             </Stack>
@@ -167,21 +186,22 @@ function PaymentRow({
             Click to upload payment proof
           </Text>
         )}
-        {(isPayment || isOrg) && meta?.status === "uploaded" && (
-          <Stack gap={1} pt={4}>
-            <Text size="xs" c="lime">
-              Payment proof uploaded successfully
-            </Text>
-            <Text
-              size="xs"
-              c="orange"
-              style={{ cursor: "pointer" }}
-              onClick={() => openImg()}
-            >
-              Click Here to view proof
-            </Text>{" "}
-          </Stack>
-        )}
+        {(isPayment || isOrg) &&
+          (meta?.status === "uploaded" || meta?.status === "verified") && (
+            <Stack gap={1} pt={4}>
+              <Text size="xs" c="lime">
+                Payment proof uploaded successfully
+              </Text>
+              <Text
+                size="xs"
+                c="orange"
+                style={{ cursor: "pointer" }}
+                onClick={() => openImg()}
+              >
+                Click Here to view proof
+              </Text>{" "}
+            </Stack>
+          )}
       </Stack>
     </Paper>
   );
